@@ -1,2 +1,2 @@
-# Matlab-SICM
-Matlab scripts and classes to handle SICM data.
+# SICM-toolbox
+Set of Matlab scripts and classes to handle SICM data.
