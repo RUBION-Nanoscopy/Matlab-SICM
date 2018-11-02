@@ -1,0 +1,223 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Class SICMtool</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-01-02"><meta name="DC.source" content="SICMtool.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Class SICMtool</h1><!--introduction--><p>Generates the graphical SICM interface.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Usage</a></li><li><a href="#4">Information on the code</a></li><li><a href="#5">Code</a></li><li><a href="#7">Properties</a></li><li><a href="#12">Methods - Constructor</a></li><li><a href="#15">Methods - Callbacks for Main menu</a></li><li><a href="#16">Methods - Setting callbacks</a></li></ul></div><h2>Usage<a name="1"></a></h2><p>To start the GUI, create an instance of this class by calling</p><pre class="language-matlab">gui = SICMTool()
+</pre><p>or use the function <tt>sicmtool</tt> for this.</p><h2>Information on the code<a name="4"></a></h2><p>This class file uses the matlab syntax for publishing <tt>.m</tt>-files for Documentation.  I use the variable <tt>self</tt> to reference to the object, rather than <tt>obj</tt> or <tt>app</tt>, which is sometimes found in Matlab code and documentation. Furthermore, I the following scheme is used: <tt>camelCased</tt> names (starting with a lowercase letter) are public, <tt>names_with_underscores</tt>  are private or protected. If a property or a method name is private, but only a single word, an underscore is added at the end.</p><h2>Code<a name="5"></a></h2><pre class="codeinput"><span class="keyword">classdef</span> SICMtool &lt; matlab.mixin.Copyable
+</pre><pre class="codeinput">    properties (SetAccess = protected, GetAccess = public)
+</pre><h2>Properties<a name="7"></a></h2><p><b>GUI</b></p><p>The Gui components are defined in the class <tt>SICMtoolGui</tt>. An instance of this class is available as the read-only property <tt>gui</tt>.</p><pre class="codeinput">        gui <span class="comment">% Holds the Gui components</span>
+</pre><p><b>History</b></p><p>The tool has a limited history for undoing operations. The corresponding class instance is kept in the property <tt>history</tt>.</p><pre class="codeinput">        history <span class="comment">% holds the history</span>
+</pre><p><b>Data</b></p><p>The property <tt>data</tt> stores an instance of <tt>SICMtoolDataHandling</tt></p><pre class="codeinput">        data <span class="comment">% Holds the data manager</span>
+</pre><p><b>Settings</b></p><p>The class that handles the settings</p><pre class="codeinput">        settings <span class="comment">% Holds the settings manager</span>
+        settings_filename = <span class="string">'../../config/sicmtool.cfg'</span> <span class="comment">% The file that stores the settings, relative to the path of this file</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+</pre><h2>Methods - Constructor<a name="12"></a></h2><pre class="codeinput">    methods  (Access = public)
+
+        <span class="keyword">function</span> self = SICMtool()
+</pre><p>Generate an instance of the SICMtoolGui class</p><pre class="codeinput">            self.gui = SICM.SICMtoolGui();
+            self.set_callbacks();
+        <span class="comment">% Generate an instance of the settings class</span>
+            [p, ~, ~] = fileparts(mfilename(<span class="string">'fullpath'</span>));
+            self.settings = SICM.SICMtoolSettings(<span class="keyword">...</span>
+                fullfile(p, self.settings_filename));
+</pre><pre class="codeinput">        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    methods (Access = protected)
+</pre><h2>Methods - Callbacks for Main menu<a name="15"></a></h2><p>The methods are stored in separate files. Use <tt>doc SICMtool</tt> to get easy access to the single functions.</p><pre class="codeinput">        <span class="comment">% File Menu</span>
+        onMenu_File_New(self);
+        onMenu_File_Open(self);
+        onMenu_File_Save(self);
+        onMenu_File_SaveAs(self);
+        onMenu_File_Export(self);
+        onMenu_File_Close(self);
+        onMenu_File_Quit(self);
+
+        <span class="comment">% View menu</span>
+        onMenu_View_OneAxis(self);
+        onMenu_View_TwoAxis_vertical(self);
+        onMenu_View_TwoAxis_horizontal(self);
+        onMenu_View_OneLargeAxis_top_twoSmallAxis_bottom(self);
+</pre><h2>Methods - Setting callbacks<a name="16"></a></h2><pre class="codeinput">        <span class="keyword">function</span> set_callbacks(self)
+
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Class SICMtool
+% 
+% Generates the graphical SICM interface.
+%
+%% Usage
+%
+% To start the GUI, create an instance of this class by calling
+% 
+%%
+%   gui = SICMTool()
+%
+%%
+% or use the function |sicmtool| for this.
+%
+%% Information on the code
+% 
+% This class file uses the matlab syntax for publishing |.m|-files for
+% Documentation.  I use the variable |self| to reference to the object,
+% rather than |obj| or |app|, which is sometimes found in Matlab code and
+% documentation. Furthermore, I the following scheme is used: |camelCased|
+% names (starting with a lowercase letter) are public,
+% |names_with_underscores|  are private or protected. If a property or a
+% method name is private, but only a single word, an underscore is added at
+% the end.
+%
+%% Code
+%
+
+classdef SICMtool < matlab.mixin.Copyable
+ 
+    properties (SetAccess = protected, GetAccess = public)
+        %% Properties
+        % *GUI*
+        %
+        % The Gui components are defined in the class |SICMtoolGui|. An
+        % instance of this class is available as the read-only property
+        % |gui|. 
+        gui % Holds the Gui components
+        
+        %% 
+        % *History*
+        %
+        % The tool has a limited history for undoing operations. The
+        % corresponding class instance is kept in the property |history|.
+        history % holds the history
+        
+        %%
+        % *Data*
+        %
+        % The property |data| stores an instance of |SICMtoolDataHandling|
+        data % Holds the data manager
+        
+        %% 
+        % *Settings*
+        %
+        % The class that handles the settings
+        
+        settings % Holds the settings manager
+        settings_filename = '../../config/sicmtool.cfg' % The file that stores the settings, relative to the path of this file
+    end
+    
+    %% Methods - Constructor
+    % 
+    methods  (Access = public)
+        
+        function self = SICMtool()
+        %%
+        % Generate an instance of the SICMtoolGui class
+            self.gui = SICM.SICMtoolGui();
+            self.set_callbacks();
+        % Generate an instance of the settings class
+            [p, ~, ~] = fileparts(mfilename('fullpath'));
+            self.settings = SICM.SICMtoolSettings(...
+                fullfile(p, self.settings_filename));
+            
+        end
+    end
+    
+    methods (Access = protected)
+    %% Methods - Callbacks for Main menu
+    % The methods are stored in separate files. Use |doc SICMtool| to get
+    % easy access to the single functions.
+
+        % File Menu
+        onMenu_File_New(self);
+        onMenu_File_Open(self);
+        onMenu_File_Save(self);
+        onMenu_File_SaveAs(self);
+        onMenu_File_Export(self);
+        onMenu_File_Close(self);
+        onMenu_File_Quit(self);
+    
+        % View menu
+        onMenu_View_OneAxis(self);
+        onMenu_View_TwoAxis_vertical(self);
+        onMenu_View_TwoAxis_horizontal(self);
+        onMenu_View_OneLargeAxis_top_twoSmallAxis_bottom(self);      
+        
+    %% Methods - Setting callbacks
+    % 
+        function set_callbacks(self)
+            
+        end
+    
+    
+    
+        
+        
+    end
+end
+##### SOURCE END #####
+--></body></html>

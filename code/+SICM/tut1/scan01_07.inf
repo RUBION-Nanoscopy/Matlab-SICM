@@ -1,0 +1,29 @@
+This is a 3D SICM Scan acquired using BehindLight2
+[Scan Info]
+Name=scan01
+Date=09.12.2015
+Start_Time=13:18:47
+Resistance=106,49 ; MOhm 
+ 
+[Scan Dimensions]
+X=1 ; µm
+dx=0,067 ; µm
+Y=1 ; µm
+dy=0,067 ; µm
+ 
+[Scan Settings]
+Origin Position=0,0,100
+Configuration Mode=Voltage Clamp Mode
+Approach Mode=Pulse Mode
+Direction Mode=Trace Only Mode
+Backstep Mode=Constant Backstep Mode
+Measurements=5
+Stepsize=10 ; nm
+Backstep=2,000 ; µm
+Threshold=102,5 ; %
+Pulse Height=150 ; mV
+ 
+[Scan Finished]
+End Time=13:22:14
+Scan Time=00:03:27
+Resistance=107,36 ; MOhm
