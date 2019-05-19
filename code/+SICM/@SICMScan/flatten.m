@@ -59,7 +59,8 @@ function varargout = flatten(self, method, varargin)
         'linewise', @local_flattenLinewise,...
         'linewisemean', @local_flattenLinewiseMean,...
         'linewiseY', @local_flattenLinewiseY,...
-        'polyXX', @local_flattenPoly...
+        'polyXX', @local_flattenPoly,...
+        'manual', @local_flatten_manual ...
     );
 
     data = feval(methods.(method), self, varargin{:});
@@ -180,6 +181,10 @@ function data = local_flattenPoly(obj, varargin)
             data = obj.zdata_grid - feval(fo, obj.xdata_grid', obj.ydata_grid');
         end
     end
+end
+
+function data = local_flatten_manual(obj)
+    data = SICM.SICMScanFlattenApp(obj);
 end
 
 %+BEGIN GUIMETADATA: Do not delete

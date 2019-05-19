@@ -13,7 +13,7 @@ function r = roughness(self, varargin)
 %
 %         n: Is the degree of the 2D-polynomial. Max degree is 5. Default
 %            value is 5.  
-
+%
 % threshold: Is a height value used applied to the data. If set, only
 %            values above (note: See next parameter) this value are
 %            included in the fitting of the polynomial and the RMSE
@@ -25,7 +25,7 @@ function r = roughness(self, varargin)
 %            increased by 1. 
 %            Here, the threshold parameter is interpreted slightly
 %            different: 
-%            - If the central pixel of of the square window if below the
+%            - If the central pixel of of the square window is below the
 %              threshold, the roughness of the pixels below the threshold
 %              is computed, otherwise the roughness of the pixels above the
 %              threshold is computed.
@@ -69,34 +69,66 @@ else
     nx = 0;
     ny = 0;
     r = zeros(self.xpx - 2*half_width,self.ypx - 2*half_width);
-    total = size(r,1)*size(r,2);
+    total = (size(r,1)-1-width)*(size(r,2)-1-width);
     fprintf('Will compute %g roughness values. This might take a while.\n', total);
-    fprintf('Temporarilly switching off the warning for bad equation desing for fitting.\n')
+    fprintf('Temporarilly switching off the warning for bad equation design for fitting.\n')
     warning('off', 'curvefit:fit:equationBadlyConditioned');
     report = floor(total/100);
     fprintf('Will report every %gth computation.\n', report);
     n_total = 0;
-    tic;
-    for y = 1 : self.ypx - width - 1
-        ny = ny +1;
-        for x = 1 : self.xpx - width - 1
-            n_total = n_total + 1;
-            if mod(n_total, report) == 0
-                fprintf('Computed the %gth roughness point', n_total);
-                toc;
-            end
-            nx = nx + 1;
-            scan = self.crop(y,x,width,width);
-            sg = sign(self.zdata_grid(x+half_width ,y + half_width) - threshold);
+%    tic;
+    %for y = 1 : self.ypx - width - 1
+    %    ny = ny +1;
+    %    for x = 1 : self.xpx - width - 1
+    %        n_total = n_total + 1;
+    %        if mod(n_total, report) == 0
+    %            fprintf('Computed the %gth roughness point', n_total);
+    %            toc;
+    %        end
+    %        nx = nx + 1;
+    %        scan = self.crop(y,x,width,width);
+    %        sg = sign(self.zdata_grid(x+half_width ,y + half_width) - threshold);
+    %        scan.scaleZ(sg);
+    %        try
+    %            r(nx,ny) = sg * scan.roughness(n, sg * threshold);
+    %        catch
+    %            r(nx,ny) = NaN;
+    %        end
+    %    end
+    %    nx = 0;
+    %end
+    
+    % trying to implement the two loops from above as a single one. 
+    
+    sz = size(self.zdata_grid) - width;
+    
+    parfor idx = 1 : total
+        scan = NaN;
+        sg = NaN;
+        warning('off', 'curvefit:fit:equationBadlyConditioned');
+        if mod(idx, report) == 0
+            fprintf('Computed the %gth roughness point', n_total);
+        end      
+        
+        [row, col] = ind2sub(sz, idx);
+        try
+            % crop uses col<->row syntax (bad!)
+            scan = self.crop(col, row, width, width);
+            sg = sign(self.zdata_grid(row + half_width ,col + half_width) - threshold);
             scan.scaleZ(sg);
-            try
-                r(nx,ny) = sg * scan.roughness(n, sg * threshold);
-            catch
-                r(nx,ny) = NaN;
-            end
+
+        catch
+            idx_x
+            idx_y
+            idx
         end
-        nx = 0;
+        try
+            r(idx) = sg * scan.roughness(n, sg * threshold);
+        catch
+            r(idx) = NaN;
+    	end
     end
+    % 
     fprintf('Enabling the warning again.')
     warning('on', 'curvefit:fit:equationBadlyConditioned');
 end
