@@ -1,0 +1,10 @@
+function exec_close_request(self)
+    scan = self.result_as_scan();
+    l = numel(self.GUI.ROIList.ROIs);
+    scan.info.ROIs = cell(1,l);
+    for roi_idx = 1:l
+        scan.info.ROIs{roi_idx} = struct(
+        
+    end
+    self.CloseCallback(self);
+end
