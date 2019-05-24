@@ -74,6 +74,7 @@ function data = local_filterNeighbours(obj, varargin)
     data = obj.zdata_grid;
     sz = size(data);
     n=zeros(1,8);
+    plot(obj); hold on
     for row = 2 : sz(1) - 1
         for col = 2: sz(2) - 1
             n(1) = obj.zdata_grid(row-1, col-1);
@@ -92,6 +93,7 @@ function data = local_filterNeighbours(obj, varargin)
             end
             if abs(obj.zdata_grid(row, col)-m) > thresh 
                 data(row, col) = m;
+                
             end
         end
     end

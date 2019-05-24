@@ -184,7 +184,12 @@ function data = local_flattenPoly(obj, varargin)
 end
 
 function data = local_flatten_manual(obj)
-    data = SICM.SICMScanFlattenApp(obj);
+    app = SICM.SICMScanFlattenApp(obj);
+    function local_assign_result(scan)
+        data = scan.zdata_grid;
+    end
+    app.CloseCallback = @local_assign_result;
+    waitfor(app.Figure);
 end
 
 %+BEGIN GUIMETADATA: Do not delete
