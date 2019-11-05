@@ -12,23 +12,35 @@ function c = centroid(self, threshold)
 
     % Compute the projection
     proj = self.zdata_grid > threshold;
+    
+    props = regionprops(proj);
+    
+    areas = [props.Area];
+    midx = find(areas == max(areas));
+    
+    c = [props(midx).Centroid(2) * self.stepx ...
+         props(midx).Centroid(1) * self.stepy];
 
-    % Number of points in the projection
-    n = sum(proj(:));
-    
-    % If the projection does not contain any values, return NaN
-    if n == 0
-        c = [NaN, NaN];
-        return
-    end
-    
-    x_tmp = self.xdata_grid .* proj;
-    y_tmp = self.ydata_grid .* proj;
-    
-    x_coord = sum(x_tmp(:)) / n;
-    y_coord = sum(y_tmp(:)) / n;
-    
-    c = [x_coord, y_coord];
 end
+
+%% This is the old version of the computation
+%     
+%     % Number of points in the projection
+%     n = sum(proj(:));
+%     
+%     % If the projection does not contain any values, return NaN
+%     if n == 0
+%         c = [NaN, NaN];
+%         return
+%     end
+%     
+%     x_tmp = self.xdata_grid .* proj;
+%     y_tmp = self.ydata_grid .* proj;
+%     
+%     x_coord = sum(x_tmp(:)) / n;
+%     y_coord = sum(y_tmp(:)) / n;
+%     
+%     c = [x_coord, y_coord];
+% end
     
     

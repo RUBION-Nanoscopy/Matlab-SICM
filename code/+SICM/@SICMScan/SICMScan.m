@@ -20,6 +20,7 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
         endtime = NaN; % End time of the scan in arbitrary time units
         duration = NaN; % Scan duration
         info = struct();
+        ROIs = {}; % A collection of regions of interest.
     end
     properties (SetAccess = protected)
         approachcurves = []; % A grid holding SICM.AppCurves for all data points, if available.
@@ -179,6 +180,7 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
         a = area(self);
         rmse = rmse(self);
         r = roughness(self, varargin);
+        r = roughness1D(self, width, n, varargin);
     end
     
     methods (Access = private)
