@@ -87,6 +87,11 @@ classdef SICMAppCurve < SICM.importer & matlab.mixin.Copyable
         varargout = autoDetectSamplingRate( self, varargin )
         scaleX (self, factor, varargin);
         scaleY (self, factor, varargin);
+        
+        varargout = shiftX( self, offset );
+        varargout = shiftY( self, offset );
+        
+        varargout = addInfo( self, info, value);
         % Methods to analyse the data automaticlly
         
         varargout = guessCurveType(self, varargin);

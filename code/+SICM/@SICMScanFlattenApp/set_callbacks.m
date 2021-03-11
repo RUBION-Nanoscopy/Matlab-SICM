@@ -33,7 +33,15 @@ function set_callbacks( self )
     % Auto-Fit
     
     self.GUI.Controls.Menu.DataAutoFit.MenuSelectedFcn = @(~, ~) local_toggle(self.GUI.Controls.Menu.DataAutoFit);
-    
+
+    controls = { ...
+        self.GUI.Controls.Menu.ProfileAx.YLimMinMaxScan, ...
+        self.GUI.Controls.Menu.ProfileAx.YLimMinMaxLine, ...
+        self.GUI.Controls.Menu.ProfileAx.YLimManual ...
+        };
+    for c = controls
+        c{1}.MenuSelectedFcn = @(~, ~) local_fake_radiobuttons( controls, c{1}, @self.plot_line); %#ok<FXSET>
+    end
     self.GUI.Controls.Btns.SelectNextLine.Callback = @(~, ~) self.change_linepointer(1);
     self.GUI.Controls.Btns.SelectPrevLine.Callback = @(~, ~) self.change_linepointer(-1);
 
@@ -49,7 +57,7 @@ function set_callbacks( self )
     self.GUI.Controls.Toolbar.FitLinesBtn.Callback = @(~, ~) self.do_fit_lines();
     
     self.GUI.Controls.Toolbar.DataResultAsBase.Callback = @(~, ~) self.result_as_base();
-    
+    self.GUI.Controls.Toolbar.DataFitMagic.Callback = @(~, ~) self.fit_magic();
     self.GUI.Controls.Toolbar.FilterMedian.Callback = @(~,~) self.filter('median', 3);
     self.GUI.Controls.Toolbar.FilterMean.Callback = @(~,~) self.filter('mean', 3);
     

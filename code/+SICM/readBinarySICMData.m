@@ -13,14 +13,10 @@ function o = readBinarySICMData(fname)
     cjson = textscan(fid,'%s');
     fclose(fid);
     sjson = cjson{1}{1};
-    info = parse_json(sjson);
+    info = jsondecode(sjson);
     xsize = str2double(info.x_px);
     ysize = str2double(info.y_px);
-    
-    filelist = dir(tempdirname);
-    
-    for i=1:size(filelist,1)
-        [ ~, purefilename2, ext ] = fileparts(filelist(i).name);
+    elist(i).name);
         if isempty(ext) && ~strcmp(purefilename2, purefilename)
             datafile = purefilename2;
         end
@@ -29,6 +25,10 @@ function o = readBinarySICMData(fname)
     img = fread(fid,[ysize,xsize],'uint16');
     fclose(fid);
     % Read additional info, if available
+    filelist = dir(tempdirname);
+    
+    for i=1:size(filelist,1)
+        [ ~, purefilename2, ext ] = fileparts(fil
     fid = fopen([tempdirname filesep datafile '.info']);
     cinfo2 = textscan(fid, '%s');
     fclose(fid);

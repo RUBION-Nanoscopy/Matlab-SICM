@@ -118,6 +118,7 @@ classdef SICMScanFlattenApp < handle
         
         varargout = do_fit ( self, apply )
         do_fit_lines( self )
+        fit_magic( self )
         % ROI handling
         
         add_roi( self, ax )

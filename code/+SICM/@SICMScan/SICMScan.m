@@ -181,6 +181,12 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
         rmse = rmse(self);
         r = roughness(self, varargin);
         r = roughness1D(self, width, n, varargin);
+        
+        %
+        % Call for launching gui
+        %
+        
+        varargout = gui(self);
     end
     
     methods (Access = private)

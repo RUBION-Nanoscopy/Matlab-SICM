@@ -126,9 +126,9 @@ function [x,y] = local_filter_bandpass(obj, varargin)
         off = 1
     end
     fl(1:length(fl_half)) = fl_half;
-    length(fl(length(fl_half)+1:end))
-    length(fl_half(end-off:-1:1))
-    fl(length(fl_half)+1:end) = fl_half(end-off-1:-1:1);
+    size(fl(length(fl_half)+1:end))
+    size((fl_half(end-off:-1:1))')
+    fl(length(fl_half)+1:end,1) = (fl_half(end-off:-1:1))';
     %figure;
     %plot(fl);
     %title('Filter')

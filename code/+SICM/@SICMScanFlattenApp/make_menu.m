@@ -22,7 +22,7 @@ function make_menu( self )
     profile = uimenu(view, 'Text','Profile Axes');
     profile_ylim = uimenu(profile, 'Text', 'Y Limits');
     menu.ProfileAx = struct();
-    menu.ProfileAx.YLimMinMaxScan = uimenu( profile_ylim, 'Text', 'Min/Max of Scan'); 
+    menu.ProfileAx.YLimMinMaxScan = uimenu( profile_ylim, 'Text', 'Min/Max of Scan', 'Checked','on'); 
     menu.ProfileAx.YLimMinMaxLine = uimenu( profile_ylim, 'Text', 'Min/Max of Line'); 
     menu.ProfileAx.YLimManual     = uimenu( profile_ylim, 'Text', 'Manual'); 
     profile_yscale                = uimenu(profile, 'Text', 'Scale');

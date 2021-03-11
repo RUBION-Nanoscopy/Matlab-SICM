@@ -14,7 +14,7 @@ function update_profile( self )
     end
     delete(self.linemarker);
             
-    self.GUI.Axes.Scan.NextPlot = 'add';
+    %self.GUI.Axes.Scan.NextPlot = 'add';
             
     x0 = self.Scan.ydata_grid(1,lp);
     xE = self.Scan.ydata_grid(end,lp);
@@ -24,13 +24,15 @@ function update_profile( self )
     y0 = self.Scan.xdata_grid(1,lp);
     yE = self.Scan.xdata_grid(end,lp);
             
-	self.linemarker = patch(self.GUI.Axes.Scan, ...
-        'XData', [x0 x0 xE xE],... 
-        'YData', [y0+dy yE-dy yE-dy y0+dy] ,... 
-    	'ZData', ones(4,1) * 1.1 * self.Scan.max ...
+    sz = size(self.Scan.zdata_grid);
+	self.linemarker = drawline(self.GUI.Axes.Scan, ...
+        'Position', [0 lp; sz(1) lp],... 
+        'Color', [1 0 1], ...
+        'InteractionsAllowed', 'none' ...
     );
-    self.linemarker.FaceColor = [1 0 0];
-    self.linemarker.FaceAlpha = .5;
-    self.linemarker.LineStyle = 'none'; 
-	self.GUI.Axes.Scan.NextPlot = 'replace';
+    %self.linemarker.FaceColor = [1 0 0];
+    %%self.linemarker.FaceAlpha = .5;
+    %self.linemarker.LineStyle = 'none'; 
+    
+	%self.GUI.Axes.Scan.NextPlot = 'replace';
 end

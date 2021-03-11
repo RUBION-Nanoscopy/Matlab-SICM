@@ -1,7 +1,7 @@
 function varargout = autoDetectSamplingRate( self, varargin )
     if nargout == 1
        o = SICM.SICMAppCurve.fromSICMAppCurve_(self);
-       o.autoDetectSamplingRate( rate );
+       o.autoDetectSamplingRate( varargin{:} );
        varargout{1} = o;
        return;
     end
@@ -14,7 +14,7 @@ function varargout = autoDetectSamplingRate( self, varargin )
     if nargin > 1
         f = varargin{1};
     end
-    fprintf('The maximum peak in frequency is in bin %g, maybe the sampling frequency was %g\n', idx, 2*f*length(real_part-1)/idx);
-    self.setSamplingRate(2*f*length(real_part-1)/idx);
+    % fprintf('The maximum peak in frequency is in bin %g, maybe the sampling frequency was %g\n', idx, 2*f*(length(real_part)-1)/idx);
+    self.setSamplingRate(2*f*(length(real_part)-1)/idx);
     
 end

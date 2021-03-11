@@ -12,7 +12,13 @@ function plot_line(self, varargin)
 
             
     self.GUI.Axes.Profile.NextPlot = 'replace';
-    self.GUI.Axes.Profile.YLim = [self.Scan.min, self.Scan.max];
+    if strcmp(self.GUI.Controls.Menu.ProfileAx.YLimMinMaxScan.Checked, 'on')
+        self.GUI.Axes.Profile.YLim = [self.Scan.min, self.Scan.max];
+    end
+    if strcmp(self.GUI.Controls.Menu.ProfileAx.YLimMinMaxLine.Checked, 'on')
+        self.GUI.Axes.Profile.YLim = [min(self.line) max(self.line)];
+    end
+    
     self.GUI.Axes.Profile.XLim = [min(x)-18 max(x)+18];
             
 	if nargin > 1

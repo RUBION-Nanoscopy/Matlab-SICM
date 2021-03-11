@@ -69,6 +69,7 @@ function varargout = flatten(self, method, varargin)
 end
 
 function data = local_flattenPlane(obj, varargin)
+    
     if nargin == 1
         x = obj.xdata_lin;
         y = obj.ydata_lin;
@@ -93,16 +94,25 @@ function data = local_flattenParaboloid(obj, varargin)
 end
 
 function data = local_flattenLinewise(obj, varargin)
+    omit = [];
+    if nargin == 1
+        p = 25;
+    else
+        p = varargin{1};
+        if nargin == 4
+            omit = varargin{3};
+        end
+    end
     data = obj.zdata_grid'; %local_flattenPlane(obj);
     sz = size(data);
     ndata = zeros(sz(1), sz(2));
-    if nargin == 1
-        p = 25
-    else
-        p = varargin{1}
-    end
     for y = 1:sz(1)
         l = data(y,:);
+        if any(omit==y)
+            ndata(y,:) = l;
+            continue
+        end
+
         p25 = prctile(l, p);
         eIdx = find(l > p25);
         fo = fit((0:length(l)-1)', l', 'poly1', 'Exclude', eIdx);
