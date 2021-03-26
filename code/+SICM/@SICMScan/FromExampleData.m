@@ -6,3 +6,5 @@ z = [54.9500000000000 54.9500000000000 54.9500000000000 54.9500000000000 54.9500
 o = SICM.SICMScan.FromZDataGrid(z);
 o.setXSize(50);
 o.setYSize(50);
+
+o.setClean();

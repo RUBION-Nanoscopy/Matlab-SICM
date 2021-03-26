@@ -70,4 +70,5 @@ end
 %+GMD Depends: {'x','y','z'}
 %+GMD Changes: {}
 %+GMD Immediate: 0
+%+GMD Unit: 'sqrt([x]×[y])×[z]'
 %+END GUIMETADATA

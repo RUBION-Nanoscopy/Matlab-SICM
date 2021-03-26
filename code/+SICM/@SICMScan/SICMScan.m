@@ -14,15 +14,22 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
 % programming since Matlab uses lazy copying otherwise.
 % 
 % See also FROMFILE, FROMZDATAGRID, FROMEXAMPLEDATA
-    properties
+    properties (SetObservable)
         zdata_grid = NaN; % z-data of the scan as a grid
         starttime = NaN; % Start time of the scan in arbitrary time units
         endtime = NaN; % End time of the scan in arbitrary time units
         duration = NaN; % Scan duration
         info = struct();
         ROIs = {}; % A collection of regions of interest.
+        UnitX = '';
+        UnitY = '';
+        UnitZ = '';
+        
     end
-    properties (SetAccess = protected)
+    properties (SetAccess = protected, GetAccess = public, SetObservable)
+        IsDirty = false;
+    end
+    properties (SetAccess = protected, SetObservable)
         approachcurves = []; % A grid holding SICM.AppCurves for all data points, if available.
         xsize = NaN; % Size of the scan in x-direction in length unit
         ysize = NaN; % Size of the scan in y-direction in length unit
@@ -110,8 +117,20 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
             % See also FROMZDATAGRID, FROMFILE
             %
             %
+            mc = metaclass(self);
+
+            for p = mc.PropertyList'
+                if ~p.Hidden && ~strcmp(p.Name, 'IsDirty')
+                    addlistener(self, p.Name, 'PostSet', @(~,~)self.dirtify());
+                end
+                
+            end
         end
     
+        % Functions that provide programming information
+        
+        info = getInterfaceInformation(self);
+        
         % 
         % Functions for completing the data. 
         %
@@ -187,6 +206,25 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
         %
         
         varargout = gui(self);
+        
+        %
+        % Getting and setting additional information (accessing the info
+        % struct). Defined inline here
+        %  
+        function val = getInfo(self, field, default)
+            if isfield(self.info, field)
+                val = self.info.(field);
+            else
+                val = default;
+            end
+        end
+        function setInfo(self, field, value)
+            self.info.(field) = value;
+        end
+        
+        function setClean(self)
+            self.IsDirty = false;
+        end
     end
     
     methods (Access = private)
@@ -202,6 +240,10 @@ classdef SICMScan <  SICM.importer & matlab.mixin.Copyable
         
         subtract_(self, what)
         multiply_(self, factor)
+        
+        function dirtify(self)
+            self.IsDirty = true;
+        end
     end
 end
 

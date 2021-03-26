@@ -3,4 +3,5 @@ function o = fromSICMScan_(obj)
     % This function copies a SICMScan object.
     
     o = obj.copy();
+    o.setClean();
 end

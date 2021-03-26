@@ -19,7 +19,7 @@ function d = slope(self, varargin)
 end
 
 %+BEGIN GUIMETADATA: Do not delete
-%+GMD Type: 'prop'
+%+GMD Type: 'img'
 %+GMD Name: 'Slope'
 %+GMD Depends: {'x','y','z'}
 %+GMD Changes: {}

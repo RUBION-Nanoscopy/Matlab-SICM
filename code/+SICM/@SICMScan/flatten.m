@@ -66,6 +66,7 @@ function varargout = flatten(self, method, varargin)
     data = feval(methods.(method), self, varargin{:});
     self.zdata_grid = data;
     self.upd_zlin_();
+    
 end
 
 function data = local_flattenPlane(obj, varargin)

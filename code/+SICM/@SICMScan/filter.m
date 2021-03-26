@@ -59,6 +59,7 @@ function varargout = filter(self, method, varargin)
     data = feval(methods.(method), self, varargin{:});
     self.zdata_grid = data;
     self.upd_zlin_();
+    
 end
 
 function data = local_filterMedian(obj, varargin)

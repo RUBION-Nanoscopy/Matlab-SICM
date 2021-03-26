@@ -2,7 +2,7 @@ classdef SICMAppCurve < SICM.importer & matlab.mixin.Copyable
 % This class provides tools to analyse and process SICM approach curves.
 
 
-    properties (SetAccess = protected)
+    properties (SetAccess = protected, SetObservable)
         xdata = NaN; % holds the x-data, that is the piezo extension
         ydata = NaN; % holds the voltage data
         mode = NaN; % VC or CC mode

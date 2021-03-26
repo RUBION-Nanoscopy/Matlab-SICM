@@ -20,4 +20,6 @@ function varargout = addYOffset(self, yoffset)
     
     self.ydata_grid = self.ydata_grid + yoffset;
     self.ydata_lin = self.ydata_grid(:);
+    
+    self.IsDirty = true;
 end

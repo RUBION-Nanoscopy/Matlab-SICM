@@ -21,4 +21,5 @@ v = self.stepx * self.stepy * sum(self.zdata_lin);
 %+GMD Depends: {'x','y','z'}
 %+GMD Changes: {}
 %+GMD Immediate: 1
+%+GMD Unit: '[x]×[y]×[z]'
 %+END GUIMETADATA

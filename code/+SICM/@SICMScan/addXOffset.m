@@ -20,3 +20,5 @@ function varargout = addXOffset(self, xoffset)
     
     self.xdata_grid = self.xdata_grid + xoffset;
     self.xdata_lin = self.xdata_grid(:);
+    
+    

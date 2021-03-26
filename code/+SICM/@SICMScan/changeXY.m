@@ -11,3 +11,4 @@ function varargout = changeXY(self)
         o.changeXY();
         varargout{1} = o;
     end
+    

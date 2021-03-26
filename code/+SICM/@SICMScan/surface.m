@@ -28,7 +28,7 @@ function varargout = surface(self, varargin)
 
     interp = 1;
     start = 0;
-    ax = gca;
+    
     if nargin > 1
         if isa(varargin{1},'matlab.graphics.axis.Axes')
             ax = varargin{1};
@@ -37,10 +37,12 @@ function varargout = surface(self, varargin)
                 start = 3;
             end
         else
+            ax = gca;
             interp = varargin{1};
             start = 2;
         end
-        
+    else
+        ax = gca;
     end
     [xg, yg] = self.generate_xygrids_(interp);
     zg = self.zdata_grid;

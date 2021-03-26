@@ -31,5 +31,6 @@ function o = FromFile(varargin)
     o = tmp.getObjectFromFilename_(filename);
     o.info.filename = filename;
     delete(tmp);
+    o.setClean();
 
 end

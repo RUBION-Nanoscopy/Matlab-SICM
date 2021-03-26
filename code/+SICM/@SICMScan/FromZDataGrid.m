@@ -9,4 +9,5 @@ function o = FromZDataGrid(zdatagrid)
     o.setPx(sz(2), sz(1));
     o.setXSize(sz(2));
     o.setYSize(sz(1));
+    o.setClean();
 end

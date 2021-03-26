@@ -52,6 +52,8 @@ function varargout = crop(self, varargin)
     self.xsize = self.xpx * self.stepx;
     self.ysize = self.ypx * self.stepy;
    
+    
+    
 %+BEGIN GUIMETADATA: Do not delete
 %+GMD Type: 'meth'
 %+GMD Name: 'Crop'
