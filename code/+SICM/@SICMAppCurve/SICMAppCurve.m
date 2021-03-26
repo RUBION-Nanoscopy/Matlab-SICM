@@ -151,7 +151,7 @@ function o = local_ImportBinary_sicm(filename)
     cjson = textscan(fid,'%s');
     fclose(fid);
     sjson = cjson{1}{1};
-    info = parse_json(sjson);
+    info = jsondecode(sjson);
     
     for i=1:size(filelist,1)
         [~,purefilename2,ext] = fileparts(filelist(i).name);
@@ -162,8 +162,13 @@ function o = local_ImportBinary_sicm(filename)
     
     fid = fopen([tempdirname filesep datafile]);
     data = fread(fid,'uint16');
-    rmdir(tempdirname, 's');
-
+    try
+        rmdir(tempdirname, 's');
+    catch ME
+        warning('SICMAppCurve:CleanupPropblem', ...
+            'Was not able to delete\n  %s\nYou can safely remove this directory and its contents.', ...
+            tempdirname);
+    end
     o = SICM.SICMAppCurve.FromXYData(...
         (1:length(data))', ...
         double(data));
