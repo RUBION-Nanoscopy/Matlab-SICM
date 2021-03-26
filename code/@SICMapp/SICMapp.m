@@ -4,7 +4,7 @@
 % matlab.ui.componentcontainer.ComponentContainer in the single display
 % components.
 
-classdef SICMapp < PH.GUI.App
+classdef SICMapp < phutils.gui.R2020b.App
     properties
         % This is the data structure for the app
 
