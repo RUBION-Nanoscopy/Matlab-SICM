@@ -18,19 +18,23 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
     
 
     
-    properties (Access = protected, Transient, NonCopyable)
+    properties (Access = public, Transient, NonCopyable)
         %NumericField (1,4) matlab.ui.control.NumericEditField
         Grid matlab.ui.container.GridLayout
         
         Axes matlab.ui.control.UIAxes
         Panel matlab.ui.container.Panel
         Modal matlab.ui.Figure
+        HasTopoMenu = false
         TopoMenuStructure
         TmpVarArgs
         OnUpdateAdjustCLim matlab.ui.container.Menu
         OnUpdateAdjustCRange matlab.ui.container.Menu
         OnUpdateAdjustZLim matlab.ui.container.Menu
         OnUpdateAdjustZRange matlab.ui.container.Menu
+        AxesInteractionMenu (1,:) matlab.ui.container.Menu
+        InterpolateSurface matlab.ui.container.Menu
+        PropWindow
     end
     methods
         function p = get.AxProps(self)
@@ -55,6 +59,13 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
         function set.Title(self, t)
             self.Panel.Title = t;
         end
+        
+        function delete(self)
+            if ~isempty(self.PropWindow)
+                delete(self.PropWindow);
+            end
+            delete@matlab.ui.componentcontainer.ComponentContainer(self);
+        end
     end
     methods (Access = protected)
         function setup(self)    
@@ -64,6 +75,8 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
             self.Axes = uiaxes(self.Grid);
             %self.readTopoMenuStructure();
         end
+        
+        
         function update(self)
             if ~isempty(self.Value)
                 if self.IsActive
@@ -79,7 +92,8 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                 self.replot()
             end
         end
-        
+    end
+    methods
         function replot(self)
            
             
@@ -89,7 +103,7 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                     s = [];
                     if ~isempty(self.Axes.Children)
                         for child = self.Axes.Children'
-                            if isa(child, 'matlab.graphics.primitive.Surface')
+                            if isa(child, 'matlab.graphics.chart.primitive.Surface')
                                 s = child;
                                 break
                             end
@@ -119,12 +133,32 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                         end
                     end
                     
-                    s = self.Value.plot(self.Axes);
                     
+                    vw = self.Axes.View;
+                    % SICMScan.plot calls SICMScan.surface, which uses
+                    % surface instead of surf to generate the plot. This
+                    % does not delete old children etc. Thus, I use surf
+                    % here:
+                    
+                    s = surf(self.Axes, ...
+                        self.Value.xdata_grid, ...
+                        self.Value.ydata_grid, ...
+                        self.Value.zdata_grid, ...
+                        'EdgeColor', 'none');
+                    
+                    if ~isempty(self.InterpolateSurface) && self.InterpolateSurface.Checked
+                        s.FaceColor = 'interp';
+                    end
+                    self.Axes.View = vw;
                     self.prepareAxes(s, crange, zrange);
                     
                 case sicmapp.gui.SICMDataDisplayTypes.HEIGHT2D
-                    imagesc(self.Axes, self.Value.zdata_grid);
+                    img = imagesc(self.Axes, self.Value.zdata_grid);
+                    img.XData = self.Value.xdata_grid(1,:);
+                    img.YData = self.Value.ydata_grid(:,1);
+                    self.Axes.XLim = [min(self.Value.xdata_lin) max(self.Value.xdata_lin)];
+                    self.Axes.YLim = [min(self.Value.ydata_lin) max(self.Value.ydata_lin)];
+                    self.Axes.View = [0 90];
                 	
                 case sicmapp.gui.SICMDataDisplayTypes.SLOPE
                     sl = self.Value.slope();
@@ -144,7 +178,14 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
         
         
         function prepareAxes(self, s, oldcrange, oldzrange)
+            self.addTopoMenu();
             self.Axes.Interactions = [];    
+            for menu = self.AxesInteractionMenu
+                if menu.Checked
+                    self.Axes.Interactions = [menu.UserData];
+                end
+            end
+            
             self.Axes.XLim = [min(self.Value.xdata_lin), max(self.Value.xdata_lin)];
             self.Axes.YLim = [min(self.Value.ydata_lin), max(self.Value.ydata_lin)];
             if strcmp(self.Axes.CLimMode, 'manual') 
@@ -169,14 +210,9 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                 end
                 self.Axes.ZLim(2) = self.Axes.ZLim(1) + zrange;
             end
-            self.Axes.DataAspectRatioMode = 'manual';
-            xratio = self.Value.xsize / self.Value.xpx;
-            yratio = self.Value.ysize / self.Value.ypx;
-            ratio = max(yratio, xratio);
-            zrange = max(self.Value.zdata_lin) - min(self.Value.zdata_lin); 
-            self.Axes.DataAspectRatio = [1 1 (zrange*ratio)];
+            
             self.Axes.Toolbar = [];
-            self.addTopoMenu();
+            
 
 %             addlistener(self.Axes, 'XLim', 'PostSet', @self.on_ax_update);
 %             addlistener(self.Axes, 'YLim', 'PostSet', @self.on_ax_update);
@@ -197,19 +233,40 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
             end
         end
         function addTopoMenu(self)
+            
+            if (self.HasTopoMenu)
+                return
+            end
             fig = sicmapp.gui.get_figure_handle(self);
             
             self.cleanMenu(fig);
+            % Export menu
+            emenu = uimenu(fig, 'Text', 'Export', 'UserData', struct('IsMajorMenu', false));
+            ecmenu = uimenu(emenu, 'Text', 'To clipboard...');
+            
+            uimenu(ecmenu, 'Text', 'As bitmap (.png)', 'MenuSelectedFcn', @(menu, data) self.on_export_clipboard('image'));
+            
+            uimenu(ecmenu, 'Text', 'As vector graphic (.pdf)', 'MenuSelectedFcn', @(menu, data) self.on_export_clipboard('vector'));
+            
+            efmenu = uimenu(emenu, 'Text', 'To File...');
+            %uimenu(efmenu, 'Text', 'As bitmap (.png)', 'MenuSelectedFcn', @(menu, data) self.on_export_file('png', 'bitmap'));
+            %uimenu(efmenu, 'Text', 'As bitmap (.tiff)', 'MenuSelectedFcn', @(menu, data) self.on_export_file('tiff', 'bitmap'))
+            %uimenu(efmenu, 'Text', 'As bitmap (.pdf)', 'MenuSelectedFcn', @(menu, data) self.on_export_file('pdf', 'bitmap'));
+            %uimenu(efmenu, 'Text', 'As vector graphic (.pdf)', 'MenuSelectedFcn', @(menu, data) self.on_export_file('png', 'vector'));
+            
             % Interaction menu
             imenu = uimenu(fig, 'Text', 'Plot interaction', ...
                 'UserData', struct('IsMajorMenu', false));
             
-            uimenu(imenu, 'Text', 'Rotate', 'Checked', true, ...
-                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data, rotateInteraction));
-            uimenu(imenu, 'Text', 'Pan', 'Checked', false, ...
-                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data, panInteraction));
-            uimenu(imenu, 'Text', 'Zoom', 'Checked', false, ...
-                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data, zoomInteraction));
+            self.AxesInteractionMenu(1) = uimenu(imenu, 'Text', 'Rotate', 'Checked', true, ...
+                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data), ...
+                'UserData', rotateInteraction);
+            self.AxesInteractionMenu(2) = uimenu(imenu, 'Text', 'Pan', 'Checked', false, ...
+                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data), ...
+                'UserData', panInteraction);
+            self.AxesInteractionMenu(3) = uimenu(imenu, 'Text', 'Zoom', 'Checked', false, ...
+                'MenuSelectedFcn', @(el, data)self.on_set_ax_interaction(el, data), ...
+                'UserData', zoomInteraction);
             
             viewmenu = uimenu(fig, 'Text', 'View', ...
                 'UserData', struct('IsMajorMenu', false));
@@ -219,10 +276,10 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                 'MenuSelectedFcn', @self.on_toggle_axvis);
             updview = uimenu(viewmenu, 'Text', 'When updated...');
             
-            self.OnUpdateAdjustCLim = uimenu(updview, 'Text', 'Auto-adjust Color Limits', 'Checked', 'on');
-            self.OnUpdateAdjustCRange = uimenu(updview, 'Text', 'Auto-adjust Color Range', 'Checked', 'on');
-            self.OnUpdateAdjustZLim = uimenu(updview, 'Text', 'Auto-adjust z-Limits', 'Checked', 'on');
-            self.OnUpdateAdjustZRange = uimenu(updview, 'Text', 'Auto-adjust z-Range', 'Checked', 'on');
+            self.OnUpdateAdjustCLim = uimenu(updview, 'Text', 'Auto-adjust Color Limits', 'Checked', 'on', 'MenuSelectedFcn', @self.on_toggle_menu);
+            self.OnUpdateAdjustCRange = uimenu(updview, 'Text', 'Auto-adjust Color Range', 'Checked', 'on', 'MenuSelectedFcn', @self.on_toggle_menu);
+            self.OnUpdateAdjustZLim = uimenu(updview, 'Text', 'Auto-adjust z-Limits', 'Checked', 'on', 'MenuSelectedFcn', @self.on_toggle_menu);
+            self.OnUpdateAdjustZRange = uimenu(updview, 'Text', 'Auto-adjust z-Range', 'Checked', 'on', 'MenuSelectedFcn', @self.on_toggle_menu);
             uimenu(viewmenu, 'Text', 'Restore view', 'Separator', 'on');
             modemenu = uimenu(viewmenu, 'Text', 'Mode...');
             uimenu(modemenu, 'Text', '3D', 'Checked', true, ...
@@ -232,39 +289,139 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
             uimenu(modemenu, 'Text', 'Slope', 'Checked', false, ...
                 'MenuSelectedFcn', @(src, data) self.on_select_displaytype(src, data, sicmapp.gui.SICMDataDisplayTypes.SLOPE));
             
-            uimenu(viewmenu, 'Text', 'Aspect ratio', 'Separator', 'on');
-            
+            uimenu(viewmenu, 'Text', 'Aspect ratio', 'Separator', 'on', 'MenuSelectedFcn', @self.on_aspect_ratio);
+            self.InterpolateSurface = uimenu(viewmenu, 'Text', 'Interpolate surface', 'Separator', 'on', 'Checked', false, 'MenuSelectedFcn', @self.on_interpolate_surface);
+            uimenu(viewmenu, 'Text', 'Adjust Limits', 'MenuSelectedFcn', @self.on_adjust_limits);
+            cmmenu = uimenu(viewmenu, 'Text', 'Colormap...');
+            uimenu(cmmenu, 'Text', 'Select Colormap', 'MenuSelectedFcn', @self.on_select_colormap);
+            uimenu(cmmenu, 'Text', 'Edit Colormap', 'MenuSelectedFcn', @self.on_edit_colormap);
             manipulate = uimenu(fig, 'Text', 'Manipulate data', 'UserData', struct('IsMajorMenu', false));
+            measurements = uimenu(fig, 'Text', 'Measurements', 'UserData', struct('IsMajorMenu', false));
+            properties = uimenu(fig, 'Text', 'Properties', 'MenuSelectedFcn', @self.on_properties_selected,...
+                'UserData', struct('IsMajorMenu', false));
+            self.makeInterfaceMenu(manipulate, measurements);
             
-            self.makeInterfaceMenu(manipulate);
-            
+            self.HasTopoMenu = true;
             notify(self, 'MenuChanged');
         end
         
-        function makeInterfaceMenu(self, menu)
-            if ~isempty(self.SICMScanInterface) && isstruct(self.SICMScanInterface) && isfield(self.SICMScanInterface, 'meth')
-                meth = self.SICMScanInterface.meth;
-                mstr = struct();
-                for k = meth
-                    item = k{1};
-                    if isfield(item, 'Menu')
-                        menuname = matlab.lang.makeValidName(item.Menu);
-                        if ~isfield(mstr, menuname)
-                            mstr.(menuname) = uimenu(menu, 'Text', sprintf('%s...', item.Menu));
+        % export callbacks
+        
+        function on_export_clipboard(self, format)
+            args = {'ContentType', format};
+            switch format
+                case 'image'
+                    args(3:4) = {'Resolution', 300};
+            end
+            
+                
+            copygraphics(self.Axes,args{:});
+        end
+        function on_select_colormap(self, menu, data)
+            modal = sicmapp.gui.get_pseudo_modal(menu, [300, 400]);
+            g = uigridlayout(modal, [1,1], 'Padding', 0);
+            sel = phutils.gui.R2020b.ColormapSelector(g, 'Axes', self.Axes);
+            modal.Visible = 'on';
+        end
+        function on_edit_colormap(self, menu, data)
+            f = sicmapp.gui.get_figure_handle(menu);
+            f.HandleVisibility='on';
+            
+
+            colormapeditor
+        end
+        function on_upd_cm(self, prop, data)
+            self.Axes.Colormap = data.AffectedObject.Colormap;
+            
+            
+        end
+        function on_toggle_menu(self, menu, data)
+            menu.Checked = ~menu.Checked;
+        end
+        function on_interpolate_surface(self, menu, data)
+            menu.Checked = ~menu.Checked;
+            if menu.Checked
+                self.Axes.Children(1).FaceColor = 'interp';
+            else
+                self.Axes.Children(1).FaceColor = 'flat';
+            end
+        end
+        
+        function on_aspect_ratio(self, menu, data)
+            f = sicmapp.gui.get_pseudo_modal(menu, [500,300]);
+            g = uigridlayout(f, [2,2], 'RowHeight', {'1x', 32});
+            oldMode = self.Axes.DataAspectRatioMode;
+            oldZ = self.Axes.DataAspectRatio(3);
+            editor = sicmapp.gui.AxesDataAspectRatioEdit(g, 'Axes', self.Axes);
+            editor.Layout.Column = [1 2];
+            f.Visible = 'on';
+            waitfor(f);
+        end
+        function on_properties_selected(self, menu, data)
+            
+            if isempty(self.PropWindow) || ~isvalid(self.PropWindow)
+                self.PropWindow = uifigure('Name', sprintf('Properties of %s', self.Panel.Title), 'Visible', 'off');
+                g = uigridlayout(self.PropWindow, [1,1], 'Padding', 0);
+                sicmapp.gui.SICMScanPropertyTable(g, 'AllowSelection', true, 'SelectionFieldLabel', 'Add to Results table', 'Value', self.Value);
+                
+            else
+                figure(self.PropWindow);
+            end
+            self.PropWindow.Visible = 'on';
+        end
+        
+        function makeInterfaceMenu(self, menu, measmenu)
+            if ~isempty(self.SICMScanInterface) && isstruct(self.SICMScanInterface) 
+                if isfield(self.SICMScanInterface, 'meth') 
+                    meth = self.SICMScanInterface.meth;
+                    mstr = struct();
+                    for k = meth
+                        item = k{1};
+                        if isfield(item, 'Menu')
+                            menuname = matlab.lang.makeValidName(item.Menu);
+                            if ~isfield(mstr, menuname)
+                                mstr.(menuname) = uimenu(menu, 'Text', sprintf('%s...', item.Menu));
+                            end
+                            curr = mstr.(menuname);
+                        else
+                            curr = menu;
                         end
-                        curr = mstr.(menuname);
-                    else
-                        curr = menu;
-                    end
-                    if iscell(item.Name)
-                        for l = 1:numel(item.Name)
-                            item.Index = l;
-                            uimenu(curr, 'Text', item.Name{l}, 'UserData', item, ...
+                        if iscell(item.Name)
+                            for l = 1:numel(item.Name)
+                                item.Index = l;
+                                uimenu(curr, 'Text', item.Name{l}, 'UserData', item, ...
+                                    'MenuSelectedFcn', @self.call_interface);
+                            end
+                        else
+                            uimenu(curr, 'Text', item.Name, 'UserData', item, ...
                                 'MenuSelectedFcn', @self.call_interface);
                         end
-                    else
-                        uimenu(curr, 'Text', item.Name, 'UserData', item, ...
-                            'MenuSelectedFcn', @self.call_interface);
+                    end
+                end
+                if isfield(self.SICMScanInterface, 'meas') 
+                    meas = self.SICMScanInterface.meas;
+                    mstr = struct();
+                    for k = meas
+                        item = k{1};
+                        if isfield(item, 'Menu')
+                            menuname = matlab.lang.makeValidName(item.Menu);
+                            if ~isfield(mstr, menuname)
+                                mstr.(menuname) = uimenu(measmenu, 'Text', sprintf('%s...', item.Menu));
+                            end
+                            curr = mstr.(menuname);
+                        else
+                            curr = measmenu;
+                        end
+                        if iscell(item.Name)
+                            for l = 1:numel(item.Name)
+                                item.Index = l;
+                                uimenu(curr, 'Text', item.Name{l}, 'UserData', item, ...
+                                    'MenuSelectedFcn', @self.call_interface);
+                            end
+                        else
+                            uimenu(curr, 'Text', item.Name, 'UserData', item, ...
+                                'MenuSelectedFcn', @self.call_interface);
+                        end
                     end
                 end
             end
@@ -280,7 +437,9 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                 if isfield(udata, 'Index')
                     index = udata.Index;
                     fixedArgs = udata.FixedArgs{index};
-                    if isfield(udata, 'VarArgs') && ~isempty(udata.VarArgs)
+                    if isfield(udata, 'VarArgs') && isstruct(udata.VarArgs{index}) ...
+                            && numel(fieldnames(udata.VarArgs{index})) > 0
+                        
                         varArgs = self.getVarArgs(udata.VarArgs{index});
                     end
                 else
@@ -292,14 +451,14 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
                     fixedArgs = udata.FixedArgs;
                 end
                 
-                if isfield(udata, 'VarArgs') && ~isempty(udata.VarArgs)
+                if isfield(udata, 'VarArgs') && isstruct(udata.VarArgs) && numel(fieldnames(udata.VarArgs)) > 0
                     varArgs = self.getVarArgs(udata.VarArgs);
                 end
             end
             if iscell(varArgs)
                 allArgs = [fixedArgs(:)', varArgs(:)'];
                 self.Value.(call)(allArgs{:});
-                if any(strcmp(udata.Changes, {'x', 'y', 'z'}))
+                if any(strcmp(udata.Changes, {'x'})) || any(strcmp(udata.Changes, 'y')) || any(strcmp(udata.Changes, 'z'))
                     self.replot();
                 end
                 notify(self, 'ValueChanged');
@@ -317,6 +476,7 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
             self.TmpVarArgs = cell(1,numel(varArgs));
             
             g = uigridlayout(self.Modal, [rows+2, 1], 'RowHeight', rh);
+            
             for k = numel(varArgs)
                 if numel(varArgs) == 1
                     argdef = varArgs;
@@ -356,9 +516,9 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
             delete(self.Modal);
         end
             
-        function on_set_ax_interaction(self, menu, data, action)
+        function on_set_ax_interaction(self, menu, data)
             if ~menu.Checked 
-                self.Axes.Interactions = [action];
+                self.Axes.Interactions = [menu.UserData];
                 parent = menu.Parent;
                 for child = parent.Children'
                     child.Checked = false;

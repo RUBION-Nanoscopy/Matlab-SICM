@@ -16,7 +16,7 @@ classdef SICMapp < phutils.gui.R2020b.App
         
         
     end
-    properties (Hidden)
+    properties % (Hidden)
         ImportMenu matlab.ui.container.Menu
         ImportMenuImport matlab.ui.container.Menu
         ImportMenuImportMultiple matlab.ui.container.Menu
@@ -63,7 +63,7 @@ classdef SICMapp < phutils.gui.R2020b.App
     end
     methods (Access = protected)
         function setup(self)
-            setup@PH.GUI.App(self);
+            setup@phutils.gui.R2020b.App(self);
             self.Grid.ColumnWidth = {'1x'};
             self.Grid.RowHeight = {'1x', 32}; % last row is the status bar
             self.Grid.Padding = 0;
@@ -111,7 +111,7 @@ classdef SICMapp < phutils.gui.R2020b.App
         
         function close(self)
             % closes the app
-            close@PH.GUI.App(self);
+            close@phutils.gui.R2020b.App(self);
             self.delete();  
         end
         

@@ -9,7 +9,7 @@ function h = distance (self)
 end
 
 %+BEGIN GUIMETADATA: Do not delete
-%+GMD Type: 'meth'
+%+GMD Type: 'meas'
 %+GMD Name: 'Measure Distance'
 %+GMD FixedArgs: {}
 %+GMD VarArgs: {}

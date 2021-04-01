@@ -10,10 +10,11 @@ classdef SICMDataDisplay < matlab.ui.componentcontainer.ComponentContainer
     end
 
     
-    properties (Access = protected, Transient, NonCopyable)
+    properties (Access = public, Transient, NonCopyable)
         %NumericField (1,4) matlab.ui.control.NumericEditField
         Grid matlab.ui.container.GridLayout
         Displays sicmapp.gui.SICMSingleDataDisplay
+         
     end
     methods (Access = protected)
         function setup(self)

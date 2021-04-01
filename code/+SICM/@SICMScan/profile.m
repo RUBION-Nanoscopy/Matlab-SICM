@@ -35,3 +35,13 @@ end
 %plot3([p1(1) p2(1)],[p1(2) p2(2)],[101 101],'r-');
 
 
+%+BEGIN GUIMETADATA: Do not delete
+%+GMD Type: 'meas'
+%+GMD Name: 'Measure Profile'
+%+GMD FixedArgs: {}
+%+GMD VarArgs: {}
+%+GMD Depends: {}
+%+GMD Changes: {}
+%+GMD Immediate: 0
+%+GMD Menu: 'Measurements'
+%+END GUIMETADATA
