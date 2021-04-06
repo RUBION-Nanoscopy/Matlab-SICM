@@ -19,7 +19,7 @@ classdef SICMSingleDataDisplay < matlab.ui.componentcontainer.ComponentContainer
 
     
     properties (Access = public, Transient, NonCopyable)
-        %NumericField (1,4) matlab.ui.control.NumericEditField
+        
         Grid matlab.ui.container.GridLayout
         
         Axes matlab.ui.control.UIAxes
